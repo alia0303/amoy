@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Game Pop Balon</title>
+  <style>
+    body {
+      background: #fce4ec;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    h1 {
+      color: #e91e63;
+      margin-bottom: 10px;
+    }
+
+    .game-area {
+      width: 80%;
+      height: 500px;
+      background: #fff3e0;
+      border: 3px solid #e91e63;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    .balloon {
+      --color: red;
+      width: 60px;
+      height: 80px;
+      border-radius: 50% 50% 45% 45%;
+      position: absolute;
+      bottom: -100px;
+      cursor: pointer;
+      background: radial-gradient(circle at 30% 30%, #fff5, var(--color));
+      box-shadow: inset -5px -10px 15px #0002;
+      transition: transform 0.2s;
+      animation: floatUp 6s linear forwards;
+    }
+
+    .balloon:hover {
+      transform: scale(1.1);
+    }
+
+    .balloon::after {
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      left: 22px;
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 12px solid var(--color);
+    }
+
+    .string {
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      width: 20px;
+      height: 60px;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .string svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    #finishBtn {
+      display: none;
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: #4caf50;
+      color: white;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #finishBtn:hover {
+      background: #388e3c;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-700px); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>pecahin dlu 10 balon merahnya ya🤭</h1>
+  <div class="game-area" id="gameArea"></div>
+  <button id="finishBtn" onclick="window.location.href='page2.html'">Udah selesai? klik sini ya!!</button>
+  <audio id="popSound" src="3 Cute Pop Sounds.mp3" preload="auto"></audio>
+
+  <script>
+    const gameArea = document.getElementById('gameArea');
+    const finishBtn = document.getElementById('finishBtn');
+    const popSound = document.getElementById('popSound');
+    let popped = 0;
+    const target = 10;
+
+const colors = [
+  'red', 'red', 'red',  // ← lebih banyak merah
+  'blue', 'green',
+  'yellow', 'purple', 'orange'];
+    function createBalloon() {
+      const balloon = document.createElement('div');
+      balloon.classList.add('balloon');
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      balloon.style.setProperty('--color', color);
+      balloon.style.left = Math.random() * (gameArea.clientWidth - 60) + 'px';
+
+      // Tali wavy yang halus dan tipis
+      const string = document.createElement('div');
+      string.classList.add('string');
+      string.innerHTML = `
+        <svg viewBox="0 0 20 60" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10,0 
+                   C5,10 15,20 10,30 
+                   C5,40 15,50 10,60" 
+                stroke="#444" stroke-width="1" fill="none"/>
+        </svg>
+      `;
+      balloon.appendChild(string);
+      gameArea.appendChild(balloon);
+
+      // Hapus setelah selesai
+      balloon.addEventListener('animationend', () => {
+        balloon.remove();
+      });
+
+      // Klik balon
+      balloon.addEventListener('click', () => {
+      popSound.currentTime = 0;
+      popSound.play();
+        if (color === 'red') {
+          popped++;
+          if (popped >= target) {
+            finishBtn.style.display = 'block';
+          }
+        }
+        balloon.remove();
+      });
+    }
+
+    setInterval(createBalloon, 700);
+  </script>
+
+</body>
+</html>
