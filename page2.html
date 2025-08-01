@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kado Spesial</title>
+  <style>
+    .vinyl {
+      position: absolute;
+      width: 200px;
+      left: 50%;
+      bottom: 130px;
+      transform: translate(-50%, 50%) scale(0.5) rotate(0deg);
+      opacity: 0;
+      transition: all 0.7s ease;
+      z-index: 1;
+    }
+    .gift-container.active .vinyl {
+      opacity: 1;
+      transform: translate(-50%, 0%) scale(1) rotate(360deg);
+      animation: spin 4s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: translate(-50%, 0%) scale(1) rotate(0deg); }
+      to { transform: translate(-50%, 0%) scale(1) rotate(360deg); }
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f8f1e9;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      overflow: hidden;
+    }
+    .container { text-align: center; }
+    h1 { color: #e74c3c; margin-bottom: 30px; }
+
+    .gift-container {
+      position: relative;
+      width: 250px;
+      height: 250px;
+      cursor: pointer;
+      margin: 0 auto;
+      perspective: 1000px;
+      z-index: 2;
+    }
+
+    .gift-box {
+      position: absolute;
+      width: 200px;
+      height: 150px;
+      background-color: #e74c3c;
+      bottom: 0;
+      left: 25px;
+      border-radius: 5px;
+      transition: all 0.5s ease;
+      z-index: 2;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .gift-lid {
+      position: absolute;
+      width: 200px;
+      height: 80px;
+      background-color: #c0392b;
+      bottom: 150px;
+      left: 25px;
+      border-radius: 5px 5px 0 0;
+      transform-origin: bottom;
+      transition: all 0.5s ease;
+      z-index: 3;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transform-origin: left center;
+      transform-style: preserve-3d;
+    }
+    .gift-lid::after {
+      content: '';
+      position: absolute;
+      top: 25px;
+      left: 0;
+      width: 100%;
+      height: 12px;
+      background-color: #f1c40f;
+    }
+
+    .gift-bow {
+      position: absolute;
+      width: 250px;
+      top: -90px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+    }
+    .gift-bow img { width: 100%; height: auto; }
+
+    .message {
+      position: absolute;
+      bottom: -50px;
+      width: 100%;
+      text-align: center;
+      color: #e74c3c;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    /* Animasi buka */
+    .gift-container.active .gift-lid {
+      transform: rotateZ(-90deg) translate(-40px, -50px);
+    }
+    .gift-container.active .gift-box {
+      transform: translateY(-30px);
+    }
+    .gift-container.active .message {
+      bottom: -80px;
+    }
+
+    /* Animasi scale down + slide down */
+    @keyframes scaleSlideDown {
+      0% { transform: scale(1) translateY(0); opacity: 1; }
+      100% { transform: scale(0.5) translateY(200px); opacity: 0; }
+    }
+    .scale-down {
+       animation: scaleSlideDown 5s forwards ease-in-out;
+       animation-delay: 1s; /* Diam 1 detik sebelum mulai */
+}
+
+    /* Overlay untuk fade ke halaman berikut */
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #f8f1e9;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+      z-index: 9999;
+    }
+    #overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay"></div>
+  <div class="container">
+    <h1>Dibuka yaaa..</h1>
+    <div class="gift-container">
+      <img src="download__30_-removebg-preview (1).png" alt="Piringan Hitam" class="vinyl">
+      <div class="ribbon"></div>
+      <div class="gift-box"></div>
+      <div class="gift-lid">
+        <div class="gift-bow">
+          <img src="Untitled design (14).png" alt="Pita Kado" />
+        </div>
+      </div>
+      <div class="message">Surprise!</div>
+    </div>
+  </div>
+
+  <!-- Audio -->
+  <audio id="gift-audio" src="Happy Birthday (Piano Version).mp3" preload="auto"></audio>
+
+<script>
+const giftContainer = document.querySelector('.gift-container');
+const message = document.querySelector('.message');
+const audio = document.getElementById('gift-audio');
+const overlay = document.getElementById('overlay');
+
+function fadeOutAudio(audioElement, duration) {
+  let volume = audioElement.volume;
+  const step = volume / (duration / 50); // setiap 50ms turunkan volume
+  const fade = setInterval(() => {
+    volume -= step;
+    if (volume <= 0) {
+      volume = 0;
+      clearInterval(fade);
+      audioElement.pause();
+    }
+    audioElement.volume = volume;
+  }, 50);
+}
+
+giftContainer.addEventListener('click', function () {
+  const isActive = this.classList.contains('active');
+  if (!isActive) {
+    this.classList.add('active');
+    message.textContent = "Selamat! 🎁";
+    audio.currentTime = 0;
+    audio.volume = 1;
+    audio.play();
+
+    // Jalankan animasi scale down
+    this.classList.add('scale-down');
+
+    // Setelah animasi selesai, fade in overlay lalu redirect
+    setTimeout(() => {
+      // Fade out suara dulu
+      fadeOutAudio(audio, 2000); // fade out 2 detik
+      overlay.classList.add('show');
+      setTimeout(() => {
+        window.location.href = "happy birtday.html"; // Halaman tujuan
+      }, 2000); // beri waktu fade out selesai sebelum pindah
+    }, 1200); // waktu animasi scale
+  }
+});
+</script>
+
+</body>
+</html>
